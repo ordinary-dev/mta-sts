@@ -2,9 +2,9 @@ package main
 
 import (
 	"io"
+	"log"
 	"net/http"
 	"os"
-    "log"
 	"strings"
 )
 
@@ -39,11 +39,11 @@ func getMtaSts(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
-    port := getVar("PORT", "8080")
-    log.Println("Starting server at localhost:" + port)
+	port := getVar("PORT", "8080")
+	log.Println("Starting server at localhost:" + port)
 	http.HandleFunc("/.well-known/mta-sts.txt", getMtaSts)
-    err := http.ListenAndServe(":" + port, nil)
-    if err != nil {
-        log.Fatal(err)
-    }
+	err := http.ListenAndServe(":"+port, nil)
+	if err != nil {
+		log.Fatal(err)
+	}
 }
