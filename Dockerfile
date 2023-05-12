@@ -12,4 +12,7 @@ FROM alpine:3.17.1
 WORKDIR /app
 COPY --from=builder /app/main /app/main
 
+ENV PORT="8080"
+EXPOSE 8080
+
 ENTRYPOINT ["/app/main"]
