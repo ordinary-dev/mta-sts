@@ -1,4 +1,4 @@
-# gSTS - simple MTA-STS setup
+# Simple MTA-STS setup
 
 This is an overly complicated way to set up MTA-STS. *Or maybe not?*
 
@@ -19,8 +19,8 @@ All configuration is done through environment variables.
 ## Docker-compose example
 ```yml
 services:
-  gsts:
-    image: ghcr.io/ordinary-dev/gsts
+  mta-sts:
+    image: ghcr.io/ordinary-dev/mta-sts
     environment:
       - MTA_STS_MX=mx.domain.com
 ```
