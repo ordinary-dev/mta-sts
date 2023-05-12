@@ -1,3 +1,3 @@
-module github.com/ordinary-dev/gSTS
+module github.com/ordinary-dev/mta-sts
 
 go 1.19
