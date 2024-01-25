@@ -12,6 +12,9 @@ FROM alpine:3.19
 WORKDIR /app
 COPY --from=builder /app/main /app/main
 
+RUN adduser --disabled-password mtasts
+USER mtasts
+
 ENV PORT="8080"
 EXPOSE 8080
 
