@@ -10,7 +10,7 @@ RUN go build -o main
 FROM alpine:3.19
 
 WORKDIR /app
-COPY --from=builder /app/main /app/main
+COPY --from=builder /app/main /usr/local/bin/mta-sts
 
 RUN adduser --disabled-password mtasts
 USER mtasts
@@ -18,4 +18,4 @@ USER mtasts
 ENV PORT="8080"
 EXPOSE 8080
 
-ENTRYPOINT ["/app/main"]
+ENTRYPOINT ["/usr/local/bin/mta-sts"]
