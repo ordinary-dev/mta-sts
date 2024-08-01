@@ -14,7 +14,7 @@ All configuration is done through environment variables.
 - `PORT` - the port used by the server, 8080 by default
 - `MTA_STS_MODE` - one of the following values: enforce, testing or none (enforce by default)
 - `MTA_STS_MAX_AGE` - the maximum lifetime of the policy in seconds, default - 604800 (7 days)
-- `MTS_STS_MX` - list of mail servers separated by commas, for example: "mx1.domain.com,mx2.domain.com"
+- `MTA_STS_MX` - list of mail servers separated by commas, for example: "mx1.domain.com,mx2.domain.com"
 
 ## Docker-compose example
 ```yml
