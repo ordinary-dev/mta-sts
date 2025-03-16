@@ -53,7 +53,7 @@ func getListener() (net.Listener, error) {
 	return net.Listen("tcp", ":"+port)
 }
 
-func handleInterrupt(srv *http.Server, idleConnsClosed chan struct{}) {
+func handleInterrupt(srv *http.Server, connsClosed chan struct{}) {
 	sigint := make(chan os.Signal, 1)
 	signal.Notify(sigint, os.Interrupt)
 	<-sigint
@@ -63,7 +63,7 @@ func handleInterrupt(srv *http.Server, idleConnsClosed chan struct{}) {
 		log.Printf("HTTP server shutdown: %v", err)
 	}
 
-	close(idleConnsClosed)
+	close(connsClosed)
 }
 
 func main() {
@@ -79,12 +79,12 @@ func main() {
 	http.HandleFunc("/.well-known/mta-sts.txt", handleRequest)
 	http.HandleFunc("/", http.NotFound)
 
-	idleConnsClosed := make(chan struct{})
-	go handleInterrupt(&srv, idleConnsClosed)
+	connsClosed := make(chan struct{})
+	go handleInterrupt(&srv, connsClosed)
 
 	if err = srv.Serve(listener); err != http.ErrServerClosed {
 		log.Fatal(err)
 	}
 
-	<-idleConnsClosed
+	<-connsClosed
 }
