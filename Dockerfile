@@ -7,7 +7,7 @@ COPY *.go ./
 
 RUN go build -o main
 
-FROM alpine:3.20
+FROM alpine:3.21
 
 WORKDIR /app
 COPY --from=builder /app/main /usr/local/bin/mta-sts
