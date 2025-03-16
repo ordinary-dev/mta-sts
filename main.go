@@ -19,21 +19,25 @@ func getVar(key string, fallback string) string {
 	return value
 }
 
+var response string
+
+func initializeResponse() {
+	mode := getVar("MTA_STS_MODE", "enforce")
+	maxAge := getVar("MTA_STS_MAX_AGE", "604800")
+	servers := strings.Split(getVar("MTA_STS_MX", "mx.change.me"), ",")
+
+	response = "version: STSv1\n" +
+		"mode: " + mode + "\n" +
+		"max_age: " + maxAge + "\n"
+
+	for _, server := range servers {
+		response += "mx: " + server + "\n"
+	}
+}
+
 func handleRequest(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/plain")
-
-	io.WriteString(w, "version: STSv1\n")
-
-	mode := getVar("MTA_STS_MODE", "enforce")
-	io.WriteString(w, "mode: "+mode+"\n")
-
-	maxAge := getVar("MTA_STS_MAX_AGE", "604800")
-	io.WriteString(w, "max_age: "+maxAge+"\n")
-
-	mxServers := strings.Split(getVar("MTA_STS_MX", "mx.change.me"), ",")
-	for _, server := range mxServers {
-		io.WriteString(w, "mx: "+server+"\n")
-	}
+	io.WriteString(w, response)
 }
 
 func getListener() (net.Listener, error) {
@@ -67,6 +71,8 @@ func handleInterrupt(srv *http.Server, connsClosed chan struct{}) {
 }
 
 func main() {
+	initializeResponse()
+
 	var srv http.Server
 
 	listener, err := getListener()
