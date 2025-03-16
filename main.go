@@ -1,10 +1,13 @@
 package main
 
 import (
+	"context"
 	"io"
 	"log"
+	"net"
 	"net/http"
 	"os"
+	"os/signal"
 	"strings"
 )
 
@@ -33,12 +36,55 @@ func handleRequest(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func main() {
+func getListener() (net.Listener, error) {
+	socketPath := os.Getenv("SOCKET_PATH")
+	if socketPath != "" {
+		return net.Listen("unix", socketPath)
+	}
+
+	listenAddress := os.Getenv("LISTEN_ADDRESS")
+	if listenAddress != "" {
+		return net.Listen("tcp", listenAddress)
+	}
+
+	// I would remove this variable in favor of LISTEN_ADDRESS,
+	// but that would break compatibility.
 	port := getVar("PORT", "8080")
-	log.Println("Starting server at localhost:" + port)
-	http.HandleFunc("/.well-known/mta-sts.txt", handleRequest)
-	err := http.ListenAndServe(":"+port, nil)
+	return net.Listen("tcp", ":"+port)
+}
+
+func handleInterrupt(srv *http.Server, idleConnsClosed chan struct{}) {
+	sigint := make(chan os.Signal, 1)
+	signal.Notify(sigint, os.Interrupt)
+	<-sigint
+
+	// We received an interrupt signal, shut down.
+	if err := srv.Shutdown(context.Background()); err != nil {
+		log.Printf("HTTP server shutdown: %v", err)
+	}
+
+	close(idleConnsClosed)
+}
+
+func main() {
+	var srv http.Server
+
+	listener, err := getListener()
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	log.Println("Starting server at " + listener.Addr().String())
+
+	http.HandleFunc("/.well-known/mta-sts.txt", handleRequest)
+	http.HandleFunc("/", http.NotFound)
+
+	idleConnsClosed := make(chan struct{})
+	go handleInterrupt(&srv, idleConnsClosed)
+
+	if err = srv.Serve(listener); err != http.ErrServerClosed {
+		log.Fatal(err)
+	}
+
+	<-idleConnsClosed
 }
