@@ -11,6 +11,13 @@ You need to set up DNS records correctly, otherwise this server will be useless.
 The server must be available on the `mta-sts` subdomain.
 
 
+## Quick start
+
+```sh
+docker run -it -p 8080:8080 ghcr.io/ordinary-dev/mta-sts:v0.2.0
+```
+
+
 ## Configuration
 
 All configuration is done through environment variables.
